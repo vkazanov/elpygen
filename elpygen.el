@@ -50,9 +50,10 @@
     (with-syntax-table python-dotty-syntax-table
       (when (symbol-at-point)
         (end-of-thing 'symbol)
-        (skip-chars-forward "[:space:]")
-        (when-let ((sexp (thing-at-point 'sexp)))
-          (elpygen-parse-arg-str sexp))))))
+        (skip-chars-forward "[:blank:]")
+        (when (looking-at-p "(")
+          (when-let (sexp (thing-at-point 'sexp))
+            (elpygen-parse-arg-str sexp)))))))
 
 (defun elpygen-parse-arg-str (arg-str)
   (split-string (substring-no-properties arg-str 1 -1)
