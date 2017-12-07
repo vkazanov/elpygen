@@ -3,9 +3,12 @@
 (require 'yasnippet)
 (require 'python)
 
+(require 'cl)
+(require 'subr-x)
+
 (defconst elpygen-varname-re "[a-zA-Z]\\w*")
 
-(defvar elpygen-function-template "def ${1:`fun`}(${2:`args`}):
+(defconst elpygen-function-template "def ${1:`fun`}(${2:`args`}):
     ${0:pass}
 ")
 

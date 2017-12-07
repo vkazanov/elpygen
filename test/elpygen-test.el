@@ -9,4 +9,14 @@
   (should (not (elpygen-symbol-method-p "function_name")))
   (should (not (elpygen-symbol-method-p "function"))))
 
+(ert-deftest parse-arg-str-test ()
+  (should (equal '("1" "abc" "2")
+                 (elpygen-parse-arg-str "(1, abc, 2)"))))
+
+(ert-deftest format-args-test ()
+  (should (equal ""
+                 (elpygen-format-args '())))
+  (should (equal "arg1, abc, arg2"
+                 (elpygen-format-args '("1" "abc" "2")))))
+
 ;;; elpygen-test.el ends here
