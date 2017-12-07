@@ -8,12 +8,18 @@
 
 (defconst elpygen-varname-re "[a-zA-Z]\\w*")
 
+(defconst elpygen-funcall-re "[[:alnum:]_.]*[[:space:]]*(")
+
 (defconst elpygen-function-template "def ${1:`fun`}(${2:`args`}):
     ${0:pass}
 ")
 
 (defun elpygen-implement ()
   (interactive)
+  (when (python-syntax-comment-or-string-p)
+    (user-error "Cannot extract symbols in comments/strings "))
+  (when (not (looking-at-p elpygen-funcall-re))
+    (user-error "This doesn't look like a function/method call"))
   (when-let (name (elpygen-get-def-name))
     (if (elpygen-symbol-method-p name)
         (elpygen-implement-method name)
@@ -29,10 +35,9 @@
 
 (defun elpygen-implement-method (name)
   (let ((arglist (elpygen-get-arglist)))
-    (setq name (seq-subseq name 5))
-    (setq arglist (cons "self" arglist))
     (elpygen-prepare-method-insert-point)
-    (elpygen-insert-template name arglist)))
+    (elpygen-insert-template (seq-subseq name 5)
+                             (cons "self" arglist))))
 
 
 (defun elpygen-insert-template (name arglist)
