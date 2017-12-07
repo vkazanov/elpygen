@@ -17,7 +17,7 @@
       (elpygen-implement-function name))))
 
 (defun elpygen-symbol-method-p (symbol-name)
-  (string-prefix-p "self." name t))
+  (string-prefix-p "self." symbol-name t))
 
 (defun elpygen-implement-function (name)
   (let ((arglist (elpygen-get-arglist)))
