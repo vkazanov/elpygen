@@ -25,7 +25,9 @@
 
 (ert-deftest elpygen-insert-template-test ()
   (elpygen-with-temp-python-buffer ""
-    (elpygen-insert-template "funname" '("arg1" "arg2"))
+    (elpygen-insert-template elpygen-function-template
+                             "funname"
+                             '("arg1" "arg2"))
     (should (equal elpygen-function-template-test-function-stub
                    (buffer-substring-no-properties (point-min) (point-max))))))
 

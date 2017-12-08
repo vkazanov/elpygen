@@ -14,6 +14,10 @@
     ${0:pass}
 ")
 
+(defconst elpygen-method-template "def ${1:`fun`}(self, ${2:`args`}):
+    ${0:pass}
+")
+
 (defun elpygen-implement ()
   (interactive)
   (when (python-syntax-comment-or-string-p)
@@ -32,15 +36,18 @@
 (defun elpygen-implement-function (name)
   (let ((arglist (elpygen-get-arglist)))
     (elpygen-prepare-function-insert-point)
-    (elpygen-insert-template name arglist)))
+    (elpygen-insert-template elpygen-function-template
+                             name
+                             arglist)))
 
 (defun elpygen-implement-method (name)
   (unless (elpygen-within-method-p)
     (user-error "Can only implement a method from within a method of a class"))
   (let ((arglist (elpygen-get-arglist)))
     (elpygen-prepare-method-insert-point)
-    (elpygen-insert-template (seq-subseq name 5)
-                             (cons "self" arglist))))
+    (elpygen-insert-template elpygen-method-template
+                             (seq-subseq name 5)
+                             arglist)))
 
 (defun elpygen-within-method-p ()
   (when-let ((defun-info (python-info-current-defun))
@@ -52,8 +59,8 @@
     (and (string-prefix-p "def" typed-defun-info)
          (>= (length defun-info-parts) 2))))
 
-(defun elpygen-insert-template (name arglist)
-  (yas-expand-snippet elpygen-function-template nil nil
+(defun elpygen-insert-template (template name arglist)
+  (yas-expand-snippet template nil nil
                       `((fun ,name)
                         (args ,(elpygen-format-args arglist)))))
 
