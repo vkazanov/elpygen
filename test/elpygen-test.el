@@ -78,7 +78,7 @@ self.method_name(marg1)
     (should (equal '("marg1")
                    (elpygen-get-arglist)))))
 
-(ert-deftest elpygen-within-method-p ()
+(ert-deftest elpygen-within-method-p-test ()
   (elpygen-with-temp-python-buffer "
 
 a_symbol
@@ -121,5 +121,87 @@ after_class
 
     (elpygen-look-at "ter_class")
     (should (not (elpygen-within-method-p)))))
+
+(ert-deftest elpygen-prepare-function-insert-point-simple-test ()
+  (elpygen-with-temp-python-buffer "
+a_funcall()
+other_call()
+"
+    (elpygen-look-at "_fun")
+    (elpygen-prepare-function-insert-point)
+    (should (= 5 (line-number-at-pos)))
+    (should (equal "
+a_funcall()
+
+
+other_call()
+"
+                   (buffer-substring-no-properties (point-min)
+                                                   (point-max))))))
+
+
+(ert-deftest elpygen-prepare-function-insert-point-block-test ()
+  (elpygen-with-temp-python-buffer "
+if True:
+    a_funcall()
+other_call()
+"
+    (elpygen-look-at "_fun")
+    (elpygen-prepare-function-insert-point)
+    (should (= 6 (line-number-at-pos)))
+    (should (equal "
+if True:
+    a_funcall()
+
+
+other_call()
+"
+                   (buffer-substring-no-properties (point-min)
+                                                   (point-max))))))
+
+(ert-deftest elpygen-prepare-function-insert-point-function-test ()
+  (elpygen-with-temp-python-buffer "
+def function(arg, arg):
+    a_funcall()
+    pass
+other_call()
+"
+    (elpygen-look-at "_fun")
+    (elpygen-prepare-function-insert-point)
+    (should (= 7 (line-number-at-pos)))
+    (should (equal "
+def function(arg, arg):
+    a_funcall()
+    pass
+
+
+other_call()
+"
+                   (buffer-substring-no-properties (point-min)
+                                                   (point-max))))))
+
+(ert-deftest elpygen-prepare-function-insert-point-method-test ()
+  (elpygen-with-temp-python-buffer "
+class Bla():
+    def function(arg, arg):
+        a_funcall()
+        pass
+other_call()
+"
+    (elpygen-look-at "_funcall")
+    (elpygen-prepare-function-insert-point)
+    (should (= 8 (line-number-at-pos)))
+    (should (equal "
+class Bla():
+    def function(arg, arg):
+        a_funcall()
+        pass
+
+
+other_call()
+"
+                   (buffer-substring-no-properties (point-min)
+                                                   (point-max))))))
+
 
 ;;; elpygen-test.el ends here

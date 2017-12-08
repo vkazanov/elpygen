@@ -87,12 +87,12 @@
       (string-join (mapcar #'format-arg arg-list) ", "))))
 
 (defun elpygen-prepare-function-insert-point ()
-  (while (not (equal 0 (current-indentation)))
-    (if (python-info-current-defun)
-        (end-of-defun)
-      (python-nav-end-of-block)))
   (beginning-of-line)
-  (open-line 2))
+  (forward-line)
+  (while (> (current-indentation) 0)
+    (python-nav-end-of-block)
+    (forward-line))
+  (newline 2))
 
 (defun elpygen-prepare-method-insert-point ()
   (end-of-defun)
