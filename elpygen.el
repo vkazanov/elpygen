@@ -20,10 +20,11 @@
     (user-error "Cannot extract symbols in comments/strings "))
   (when (not (looking-at-p elpygen-funcall-re))
     (user-error "This doesn't look like a function/method call"))
-  (when-let (name (elpygen-get-def-name))
-    (if (elpygen-symbol-method-p name)
-        (elpygen-implement-method name)
-      (elpygen-implement-function name))))
+  (if-let (name (elpygen-get-def-name))
+      (if (elpygen-symbol-method-p name)
+          (elpygen-implement-method name)
+        (elpygen-implement-function name))
+    (user-error "Failed to find a suitable symbol")))
 
 (defun elpygen-symbol-method-p (symbol-name)
   (string-prefix-p "self." symbol-name t))
@@ -34,11 +35,22 @@
     (elpygen-insert-template name arglist)))
 
 (defun elpygen-implement-method (name)
+  (unless (elpygen-within-method-p)
+    (user-error "Can only implement a method from within a method of a class"))
   (let ((arglist (elpygen-get-arglist)))
     (elpygen-prepare-method-insert-point)
     (elpygen-insert-template (seq-subseq name 5)
                              (cons "self" arglist))))
 
+(defun elpygen-within-method-p ()
+  (when-let ((defun-info (python-info-current-defun))
+             (defun-info-parts (split-string defun-info "\\."))
+             (first-part (first defun-info-parts))
+             (typed-defun-info (python-info-current-defun t)))
+    ;; Should be a method (i.e. def) and should be within a class, i.e. defun info should contain at
+    ;; least two parts, with the first capitalised. Should work most of the time.
+    (and (string-prefix-p "def" typed-defun-info)
+         (>= (length defun-info-parts) 2))))
 
 (defun elpygen-insert-template (name arglist)
   (yas-expand-snippet elpygen-function-template nil nil

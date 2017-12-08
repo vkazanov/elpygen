@@ -78,4 +78,48 @@ self.method_name(marg1)
     (should (equal '("marg1")
                    (elpygen-get-arglist)))))
 
+(ert-deftest elpygen-within-method-p ()
+  (elpygen-with-temp-python-buffer "
+
+a_symbol
+
+a_funcall()
+
+bad_method_call()
+
+def definition():
+    in_definition()
+
+class Class:
+    static_property
+
+    def method(self, smth):
+        self.new_method(arg1)
+
+after_class
+"
+    (elpygen-look-at "_sym")
+    (should (not (elpygen-within-method-p)))
+
+    (forward-line)
+    (should (not (elpygen-within-method-p)))
+
+    (elpygen-look-at "in_definition")
+    (should (not (elpygen-within-method-p)))
+
+    (elpygen-look-at "_funcall")
+    (should (not (elpygen-within-method-p)))
+
+    (elpygen-look-at "atic_property")
+    (should (not (elpygen-within-method-p)))
+
+    (elpygen-look-at "w_meth")
+    (should (elpygen-within-method-p))
+
+    (forward-line)
+    (should (not (elpygen-within-method-p)))
+
+    (elpygen-look-at "ter_class")
+    (should (not (elpygen-within-method-p)))))
+
 ;;; elpygen-test.el ends here
