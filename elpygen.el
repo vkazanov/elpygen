@@ -1,10 +1,17 @@
+;;; elpygen.el --- Implement a function or a method using symbol name and arguments under the point
 ;;; -*- lexical-binding: t; -*-
+
+
+;;; Commentary:
+;;
 
 (require 'yasnippet)
 (require 'python)
 
 (require 'cl)
 (require 'subr-x)
+
+;;; Code:
 
 (defconst elpygen-varname-re "[a-zA-Z]\\w*")
 
@@ -19,6 +26,8 @@
 ")
 
 (defun elpygen-implement ()
+  "Implement a function or a method using the symbol name and
+call arguments under the point."
   (interactive)
   (when (python-syntax-comment-or-string-p)
     (user-error "Cannot extract symbols in comments/strings "))
@@ -31,9 +40,13 @@
     (user-error "Failed to find a suitable symbol")))
 
 (defun elpygen--symbol-method-p (symbol-name)
+  "Check if a symbol is a method call.
+Argument SYMBOL-NAME the name of the symbol to check."
   (string-prefix-p "self." symbol-name t))
 
 (defun elpygen--implement-function (name)
+  "Insert a function stub.
+Argument NAME the name of the function to insert."
   (let ((arglist (elpygen--get-arglist)))
     (elpygen--prepare-function-insert-point)
     (elpygen--insert-template elpygen-function-template
@@ -41,6 +54,8 @@
                               arglist)))
 
 (defun elpygen--implement-method (name)
+  "Insert a method stub into the current class.
+Argument NAME is the name of method to insert."
   (unless (elpygen--within-method-p)
     (user-error "Can only implement a method from within a method of a class"))
   (let ((arglist (elpygen--get-arglist)))
@@ -50,6 +65,7 @@
                               arglist)))
 
 (defun elpygen--within-method-p ()
+  "Check if the point is inside a method."
   (when-let ((defun-info (python-info-current-defun))
              (defun-info-parts (split-string defun-info "\\."))
              (first-part (first defun-info-parts))
@@ -60,16 +76,21 @@
          (>= (length defun-info-parts) 2))))
 
 (defun elpygen--insert-template (template name arglist)
+  "Insert a TEMPLATE into the current buffer.
+Argument NAME is the name of the function/method to insert.
+Argument ARGLIST is the argument list of the function/method."
   (yas-expand-snippet template nil nil
                       `((fun ,name)
                         (args ,(elpygen--format-args arglist)))))
 
 (defun elpygen--get-def-name ()
+  "Retrieve a symbol under the point."
   (with-syntax-table python-dotty-syntax-table
     (when-let ((funname (thing-at-point 'symbol)))
       (substring-no-properties funname))))
 
 (defun elpygen--get-arglist ()
+  "Retrieve the argument list of the symbol at point."
   (save-excursion
     (with-syntax-table python-dotty-syntax-table
       (when (symbol-at-point)
@@ -80,10 +101,13 @@
             (elpygen--parse-arg-str sexp)))))))
 
 (defun elpygen--parse-arg-str (arg-str)
+  "Make a list of arguments from ARG-STR."
   (split-string (substring-no-properties arg-str 1 -1)
                 "," t split-string-default-separators))
 
 (defun elpygen--format-args (arg-list)
+  "Build a string from the list of argument names.
+Argument ARG-LIST is the list of argument names."
   (let ((counter 0))
     (cl-flet
         ((format-arg (arg)
@@ -94,6 +118,7 @@
       (string-join (mapcar #'format-arg arg-list) ", "))))
 
 (defun elpygen--prepare-function-insert-point ()
+  "Move the point to a place suitable for function insertion."
   (beginning-of-line)
   (forward-line)
   (while (> (current-indentation) 0)
@@ -102,9 +127,14 @@
   (newline 2))
 
 (defun elpygen--prepare-method-insert-point ()
+  "Move the point to a place suitable for method insertion."
   (end-of-defun)
   (open-line 1)
   (python-indent-line-function))
 
 
 (provide 'elpygen)
+
+(provide 'elpygen)
+
+;;; elpygen.el ends here
