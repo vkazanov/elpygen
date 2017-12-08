@@ -19,17 +19,16 @@
   (should (equal "arg1, abc, arg2"
                  (elpygen-format-args '("1" "abc" "2")))))
 
-(defconst elpygen-function-template-test-function-stub "def funname(arg1, arg2):
-    pass
-")
-
 (ert-deftest elpygen-insert-template-test ()
   (elpygen-with-temp-python-buffer ""
     (elpygen-insert-template elpygen-function-template
                              "funname"
                              '("arg1" "arg2"))
-    (should (equal elpygen-function-template-test-function-stub
-                   (buffer-substring-no-properties (point-min) (point-max))))))
+    (let ((expected "def funname(arg1, arg2):
+    pass
+"))
+      (should (equal expected
+                     (buffer-substring-no-properties (point-min) (point-max)))))))
 
 (ert-deftest elpygen-get-def-name-test ()
   (elpygen-with-temp-python-buffer
