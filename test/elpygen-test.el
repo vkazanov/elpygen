@@ -205,4 +205,32 @@ other_call()
                                                    (point-max))))))
 
 
+(ert-deftest elpygen--elpygen--prepare-method-insert-point-simple-test ()
+  (elpygen-with-temp-python-buffer "
+class Bla():
+
+    def function(self, arg):
+        self.other_call(arg1)
+        pass
+
+
+    def next_function(self, arg):
+        self.call(arg2)
+
+
+class NextClass():
+    pass
+"
+    (elpygen-look-at "ther_call")
+    (elpygen--prepare-method-insert-point)
+    (should (= 8 (line-number-at-pos)))
+    (should (= 4 (current-column)))
+
+    (elpygen-look-at ".call")
+    (elpygen--prepare-method-insert-point)
+    (should (= 13 (line-number-at-pos)))
+    (should (= 4 (current-column)))))
+
+
+
 ;;; elpygen-test.el ends here
