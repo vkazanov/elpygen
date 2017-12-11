@@ -68,7 +68,6 @@ Argument NAME is the name of method to insert."
   "Check if the point is inside a method."
   (when-let ((defun-info (python-info-current-defun))
              (defun-info-parts (split-string defun-info "\\."))
-             (first-part (first defun-info-parts))
              (typed-defun-info (python-info-current-defun t)))
     ;; Should be a method (i.e. def) and should be within a class, i.e. defun info should contain at
     ;; least two parts, with the first capitalised. Should work most of the time.
@@ -132,8 +131,6 @@ Argument ARG-LIST is the list of argument names."
   (open-line 1)
   (python-indent-line-function))
 
-
-(provide 'elpygen)
 
 (provide 'elpygen)
 
