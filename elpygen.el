@@ -13,25 +13,26 @@
 
 ;;; Code:
 
-(defconst elpygen-varname-re "[a-zA-Z]\\w*")
-
-(defconst elpygen-funcall-re "[[:alnum:]_.]*[[:space:]]*(")
-
-(defconst elpygen-function-template "def ${1:`fun`}(${2:`args`}):
+(defvar elpygen-function-template "def ${1:`fun`}(${2:`args`}):
     ${0:pass}
-")
+"
+  "A Yasnippet template to be used for a function stub.")
 
-(defconst elpygen-method-template "def ${1:`fun`}(self, ${2:`args`}):
+(defvar elpygen-method-template "def ${1:`fun`}(self, ${2:`args`}):
     ${0:pass}
-")
+"
+  "A Yasnippet template to be used for a method stub.")
+
+(defconst elpygen--varname-re "[a-zA-Z]\\w*")
+
+(defconst elpygen--funcall-re "[[:alnum:]_.]*[[:space:]]*(")
 
 (defun elpygen-implement ()
-  "Implement a function or a method using the symbol name and
-call arguments under the point."
+  "Implement a function or a method using the symbol name and call arguments under the point."
   (interactive)
   (when (python-syntax-comment-or-string-p)
     (user-error "Cannot extract symbols in comments/strings "))
-  (when (not (looking-at-p elpygen-funcall-re))
+  (when (not (looking-at-p elpygen--funcall-re))
     (user-error "This doesn't look like a function/method call"))
   (if-let (name (elpygen--get-def-name))
       (if (elpygen--symbol-method-p name)
@@ -110,7 +111,7 @@ Argument ARG-LIST is the list of argument names."
   (let ((counter 0))
     (cl-flet
         ((format-arg (arg)
-                     (if (string-match-p elpygen-varname-re arg)
+                     (if (string-match-p elpygen--varname-re arg)
                          arg
                        (incf counter)
                        (concat "arg" (number-to-string counter)))))
