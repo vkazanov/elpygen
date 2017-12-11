@@ -211,7 +211,8 @@ class Bla():
 
     def function(self, arg):
         self.other_call(arg1)
-        pass
+        if True:
+            block_call()
 
 
     def next_function(self, arg):
@@ -223,12 +224,12 @@ class NextClass():
 "
     (elpygen-look-at "ther_call")
     (elpygen--prepare-method-insert-point)
-    (should (= 8 (line-number-at-pos)))
+    (should (= 9 (line-number-at-pos)))
     (should (= 4 (current-column)))
 
     (elpygen-look-at ".call")
     (elpygen--prepare-method-insert-point)
-    (should (= 13 (line-number-at-pos)))
+    (should (= 14 (line-number-at-pos)))
     (should (= 4 (current-column)))))
 
 

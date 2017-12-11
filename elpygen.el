@@ -128,7 +128,6 @@ Argument ARG-LIST is the list of argument names."
 
 (defun elpygen--prepare-method-insert-point ()
   "Move the point to a place suitable for method insertion."
-  ;; Move one
   (let (target-indent)
     (save-excursion
       (while (and
