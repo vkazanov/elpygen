@@ -1,17 +1,36 @@
-;;; elpygen.el --- Implement a function or a method using symbol name and arguments under the point
-;;; -*- lexical-binding: t; -*-
+;;; elpygen.el --- Implement a function or a method -*- lexical-binding: t; -*-
 
+
+;; Author: Vladimir Kazanov <vkazanov@inbox.ru>
+;; Version: 0.1.0
+;; Package-Requires: ((emacs "25") (yasnippet "0.8.0"))
+;; Keywords: Python, Languages, Tools
+;; URL: https://github.com/vkazanov/elpygen
+
+;; This program is free software; you can redistribute it and/or
+;; modify it under the terms of the GNU General Public License
+;; as published by the Free Software Foundation; either version 3
+;; of the License, or (at your option) any later version.
+
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+
+;; You should have received a copy of the GNU General Public License
+;; along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 ;;; Commentary:
 ;;
+;; This package uses the symbol name (if it looks like a call ) and it's arguments under point to
+;; insert a method or a function stub into a suitable place.
+
+;;; Code:
 
 (require 'yasnippet)
 (require 'python)
-
-(require 'cl)
 (require 'subr-x)
-
-;;; Code:
+(require 'cl-lib)
 
 (defvar elpygen-function-template "def ${1:`fun`}(${2:`args`}):
     ${0:pass}
@@ -27,6 +46,7 @@
 
 (defconst elpygen--funcall-re "[[:alnum:]_.]*[[:space:]]*(")
 
+;;;###autoload
 (defun elpygen-implement ()
   "Implement a function or a method using the symbol name and call arguments under the point."
   (interactive)
@@ -113,7 +133,7 @@ Argument ARG-LIST is the list of argument names."
         ((format-arg (arg)
                      (if (string-match-p elpygen--varname-re arg)
                          arg
-                       (incf counter)
+                       (cl-incf counter)
                        (concat "arg" (number-to-string counter)))))
       (string-join (mapcar #'format-arg arg-list) ", "))))
 
