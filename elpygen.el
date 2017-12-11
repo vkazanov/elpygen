@@ -128,8 +128,12 @@ Argument ARG-LIST is the list of argument names."
 (defun elpygen--prepare-method-insert-point ()
   "Move the point to a place suitable for method insertion."
   ;; Move one
-  (let* ((original-indent-levels (python-indent-calculate-levels))
-         (target-indent (second (reverse original-indent-levels))))
+  (let (target-indent)
+    (save-excursion
+      (while (and
+              (not (python-info-looking-at-beginning-of-defun))
+              (python-nav-backward-block)))
+      (setq target-indent (current-indentation)))
     (python-nav-end-of-defun)
     (newline 1)
     (indent-to target-indent)))
