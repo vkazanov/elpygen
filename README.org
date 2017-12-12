@@ -8,14 +8,26 @@
   interactive, i.e. it's possible to cycle through the typical template modification points using
   ~<tab>~.
 
-  ~elpygen~ requires Emacs 25, built-in ~python.el~ and ~yasnippet~.
+  ~elpygen~ requires Emacs version above 25, built-in ~python.el~ and ~yasnippet~.
 
-* How?
+* How to install?
 
-  Install the package either manually or through [[http://melpa.milkbox.net][Melpa]]. Add ~(require 'elpygen)~ to your ~.emacs~.
-  Bind ~elpygen-implement~ to a key you like: ~(define-key python-mode-map (kbd "C-c i") 'elpygen-implement)~.
+  For manual installation checkout the repository and copy ~elpygen.el~ to your ~load-path~. Make sure
+  ~yasnippet~ is also installed, and your emacs version is above 25.
 
-  Now, move the point to the ~a_function_call~ symbol given the following code:
+  The package should also be available through [[http://melpa.milkbox.net][Melpa]], so just do ~M-x package-install elpygen~, which
+  should ensure all the dependencies are installed.
+
+  Having the package installed add ~(require 'elpygen)~ to your ~.emacs~ and bind ~elpygen-implement~ to a
+  key you like:
+
+#+BEGIN_SRC emacs-lisp
+(define-key python-mode-map (kbd "C-c i") 'elpygen-implement).
+#+END_SRC
+
+* How to use?
+
+  Move the point to the ~a_function_call~ symbol given the following code:
 
 #+BEGIN_SRC python
 
@@ -23,8 +35,8 @@ a_function_call(first_named, 2, second_named)
 
 #+END_SRC
 
-  Press ~C-c i~. The following stub will be inserted, pressing ~<tab>~ will cycle through the
-  function name, args and the body.
+  Press ~C-c i~ (or the binding you use). The following stub will be inserted, pressing ~<tab>~ will
+  cycle through the function name, args and the body.
 
 #+BEGIN_SRC python
 
