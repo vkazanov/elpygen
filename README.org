@@ -1,0 +1,88 @@
+* What?
+
+  ~elpygen.el~ is a little package that implements a single function (~elpygen-implement~). The
+  function retrieves the symbol name under the point, checks that the symbol looks like a call and
+  generates a stub for either a function or a method based on the name of the symbol.
+
+  As the insertion is done using ~yasnippet~ the inserted function/method template will be
+  interactive, i.e. it's possible to cycle through the typical template modification points using
+  ~<tab>~.
+
+  ~elpygen~ requires Emacs 25, built-in ~python.el~ and ~yasnippet~.
+
+* How?
+
+  Install the package either manually or through [[http://melpa.milkbox.net][Melpa]]. Add ~(require 'elpygen)~ to your ~.emacs~.
+  Bind ~elpygen-implement~ to a key you like: ~(define-key python-mode-map (kbd "C-c i") 'elpygen-implement)~.
+
+  Now, move the point to the ~a_function_call~ symbol given the following code:
+
+#+BEGIN_SRC python
+
+a_function_call(first_named, 2, second_named)
+
+#+END_SRC
+
+  Press ~C-c i~. The following stub will be inserted, pressing ~<tab>~ will cycle through the
+  function name, args and the body.
+
+#+BEGIN_SRC python
+
+a_function_call(arg1, 2, arg2)
+
+
+def a_function_call(first_named, arg1, second_named):
+    pass
+
+#+END_SRC
+
+  Notice how the constant ~2~ was replaced with a default argument name ~arg1~.
+
+  The same ~elpygen-implement~ works for methods. Given the following code move the point to
+  ~a_method_call~.
+
+#+BEGIN_SRC python
+
+class Class():
+
+    def __init__(self):
+        self.a_method_call(arg)
+
+#+END_SRC
+
+   Press ~C-c i~:
+
+#+BEGIN_SRC python
+class Class():
+
+    def __init__(self):
+        self.a_method_call(arg)
+
+    def a_method_call(self, arg):
+        pass
+
+#+END_SRC
+
+  That's it, basically. ~elpygen-implement~ chooses between function and method templates based on
+  the symbol name. Methods should start with ~self.~, and can only be implemented within a class.
+
+* Why?
+
+  These days I write a lot of small Python utilities, and I prefer doing that using the top-down
+  approach. This means I write the general code structure first, and figure out the details
+  (function/method bodies) later. This package helps to streamline the process of generating those
+  little helper functions and methods and saves a lot of key presses.
+
+  My memory isn't that good any more so I explicitly try to avoid introducing multiple entry points
+  or key bindings, so that the cognitive load isn't too big.
+
+  Originally I wanted to offer this code for inclusion to the wonderful [[https://github.com/jorgenschaefer/elpy][Elpy]] package but figured out
+  that ~elpygen~ doesn't need any code from it and is perfectly fine as a standalone package.
+
+* Plans?
+
+  - [ ] bugs
+
+  - [ ] customisation points (insertion method, insertion point, etc)
+
+  - [ ] inserting a Class template based on the symbol name should also be possible.

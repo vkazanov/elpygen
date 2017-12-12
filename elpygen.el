@@ -1,5 +1,6 @@
-;;; elpygen.el --- Implement a function or a method -*- lexical-binding: t; -*-
+;;; elpygen.el --- Implement a function or a method under point -*- lexical-binding: t; -*-
 
+;; Copyright (C) 2017 Vladimir Kazanov
 
 ;; Author: Vladimir Kazanov <vkazanov@inbox.ru>
 ;; Version: 0.1.0
@@ -30,6 +31,7 @@
 (require 'yasnippet)
 (require 'python)
 (require 'subr-x)
+(require 'thingatpt)
 (require 'cl-lib)
 
 (defvar elpygen-function-template "def ${1:`fun`}(${2:`args`}):
