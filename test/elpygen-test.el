@@ -17,7 +17,7 @@
   (should (equal ""
                  (elpygen--format-args '())))
   (should (equal "arg1, abc, arg2"
-                 (elpygen--format-args '("1" "abc" "2")))))
+                 (elpygen--format-args '("1" "abc" "\"str\"")))))
 
 (ert-deftest elpygen--insert-template-test ()
   (elpygen-with-temp-python-buffer ""
