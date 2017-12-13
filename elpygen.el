@@ -143,11 +143,11 @@ Argument ARG-LIST is the list of argument names."
 
 (defun elpygen--prepare-function-insert-point ()
   "Move the point to a place suitable for function insertion."
-  (beginning-of-line)
+  (while (and
+          (> (current-indentation) 0)
+          (python-nav-backward-block)))
+  (python-nav-end-of-block)
   (forward-line)
-  (while (> (current-indentation) 0)
-    (python-nav-end-of-block)
-    (forward-line))
   (newline 2))
 
 (defun elpygen--prepare-method-insert-point ()
