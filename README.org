@@ -40,7 +40,7 @@ a_function_call(first_named, 2, second_named)
 
 #+BEGIN_SRC python
 
-a_function_call(arg1, 2, arg2)
+a_function_call(first_named, 2, second_named)
 
 
 def a_function_call(first_named, arg1, second_named):
