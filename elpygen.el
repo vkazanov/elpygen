@@ -44,7 +44,7 @@
 "
   "A Yasnippet template to be used for a method stub.")
 
-(defconst elpygen--varname-re "^[a-zA-Z]\\w*$")
+(defconst elpygen--varname-re "^[[:alpha:]_][[:alnum:]_]*$")
 
 (defconst elpygen--funcall-re "[[:alnum:]_.]*[[:space:]]*(")
 
