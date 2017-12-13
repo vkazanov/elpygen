@@ -86,7 +86,7 @@ Argument NAME is the name of method to insert."
   (let ((arglist (elpygen--get-arglist)))
     (elpygen--prepare-method-insert-point)
     (elpygen--insert-template elpygen-method-template
-                              (seq-subseq name 5)
+                              (string-remove-prefix "self." name)
                               arglist)))
 
 (defun elpygen--within-method-p ()
