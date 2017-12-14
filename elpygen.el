@@ -44,9 +44,9 @@
 "
   "A Yasnippet template to be used for a method stub.")
 
-(defconst elpygen--varname-re "^[[:alpha:]_][[:alnum:]_]*$")
+(defvar elpygen--varname-re "^[[:alpha:]_][[:alnum:]_]*$")
 
-(defconst elpygen--funcall-re "[[:alnum:]_.]*[[:space:]]*(")
+(defvar elpygen--funcall-re "[[:alnum:]_.]*[[:space:]]*(")
 
 ;;;###autoload
 (defun elpygen-implement ()
@@ -61,7 +61,7 @@
   (if-let (name (elpygen--get-def-name))
       (if (elpygen--symbol-method-p name)
           (elpygen--implement-method name)
-        (elpygen--implement-function name))
+        (elpygen--implement-or-find-function name))
     (user-error "Failed to find a suitable symbol")))
 
 (defun elpygen--symbol-method-p (symbol-name)
@@ -69,8 +69,24 @@
 Argument SYMBOL-NAME the name of the symbol to check."
   (string-prefix-p "self." symbol-name t))
 
+(defun elpygen--find-function-definition (name)
+  "Find a top-level function definition or return nil.
+Argument NAME the name of the symbol to check."
+  (save-excursion
+    (goto-char (point-min))
+    (let ((defun-re (concat (python-rx line-start defun (+ space))
+                            (regexp-quote name))))
+      (re-search-forward defun-re nil t))))
+
+(defun elpygen--implement-or-find-function (name)
+  "Find top-level function definition or insert a function stub.
+Argument NAME the name of the function to find or insert."
+  (if-let (pos (elpygen--find-function-definition name))
+      (goto-char pos)
+    (elpygen--implement-function name)))
+
 (defun elpygen--implement-function (name)
-  "Insert a function stub.
+  "Find top-level function definition or insert a function stub.
 Argument NAME the name of the function to insert."
   (let ((arglist (elpygen--get-arglist)))
     (elpygen--prepare-function-insert-point)
