@@ -47,7 +47,8 @@
 
 (defvar elpygen--varname-re (python-rx line-start symbol-name line-end))
 
-(defvar elpygen--call-re (python-rx symbol-name (* space) "("))
+(defvar elpygen--call-re nil)
+(setq elpygen--call-re (python-rx (optional "self" "\\.") symbol-name (* space) "("))
 
 (defvar elpygen--class-re (python-rx line-start (* space) "class" (+ space) symbol-name))
 
@@ -57,7 +58,7 @@
   (interactive)
   (when (python-syntax-comment-or-string-p)
     (user-error "Cannot extract symbols in comments/strings "))
-  (when (not (looking-at-p elpygen--call-re))
+  (when (not (elpygen--looking-at-call-p))
     (user-error "This doesn't look like a function/method call"))
   (when (python-info-looking-at-beginning-of-defun)
     (user-error "This is a function/method/class definition, not a call"))
@@ -67,6 +68,14 @@
           (elpygen--implement-or-find-method (string-remove-prefix "self." name))
         (elpygen--implement-or-find-function name))
     (user-error "Failed to find a suitable symbol")))
+
+(defun elpygen--looking-at-call-p ()
+  "Check if looking at a proper call."
+  (save-excursion
+    (with-syntax-table python-dotty-syntax-table
+      (and (thing-at-point 'symbol)
+           (beginning-of-thing 'symbol)
+           (looking-at-p elpygen--call-re)))))
 
 (defun elpygen--symbol-method-p (symbol-name)
   "Check if a symbol is a method call.
