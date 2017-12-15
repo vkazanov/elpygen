@@ -156,7 +156,7 @@ Argument ARGLIST is the argument list of the function/method."
 (defun elpygen--get-def-name ()
   "Retrieve a symbol under the point."
   (with-syntax-table python-dotty-syntax-table
-    (when-let ((funname (thing-at-point 'symbol)))
+    (when-let (funname (thing-at-point 'symbol))
       (substring-no-properties funname))))
 
 (defun elpygen--get-arglist ()
