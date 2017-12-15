@@ -93,10 +93,10 @@ class Class():
 
 * Plans?
 
+  - [X] if a definition already exists - just navigate to it instead of template insertion
+
   - [ ] bugs
 
   - [ ] inserting a Class template based on the symbol name should also be possible.
-
-  - [ ] if a definition already exists - just navigate to it instead of template insertion
 
   - [ ] customisation points (insertion method, insertion point, etc)
