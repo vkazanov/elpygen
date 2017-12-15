@@ -45,9 +45,9 @@
 "
   "A Yasnippet template to be used for a method stub.")
 
-(defvar elpygen--varname-re "^[[:alpha:]_][[:alnum:]_]*$")
+(defvar elpygen--varname-re (python-rx line-start symbol-name line-end))
 
-(defvar elpygen--funcall-re "[[:alnum:]_.]*[[:space:]]*(")
+(defvar elpygen--call-re (python-rx symbol-name (* space) "("))
 
 (defvar elpygen--class-re (python-rx line-start (* space) "class" (+ space) symbol-name))
 
@@ -57,7 +57,7 @@
   (interactive)
   (when (python-syntax-comment-or-string-p)
     (user-error "Cannot extract symbols in comments/strings "))
-  (when (not (looking-at-p elpygen--funcall-re))
+  (when (not (looking-at-p elpygen--call-re))
     (user-error "This doesn't look like a function/method call"))
   (when (python-info-looking-at-beginning-of-defun)
     (user-error "This is a function/method/class definition, not a call"))
