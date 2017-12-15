@@ -40,7 +40,7 @@
 "
   "A Yasnippet template to be used for a function stub.")
 
-(defvar elpygen-method-template "def ${1:`fun`}(self, ${2:`args`}):
+(defvar elpygen-method-template "def ${1:`fun`}(${2:`(if (not (string-empty-p args)) (concat \"self, \" args) \"self\")`}):
     ${0:pass}
 "
   "A Yasnippet template to be used for a method stub.")
