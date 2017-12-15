@@ -93,7 +93,7 @@ Argument NAME the name of the symbol to check."
       (re-search-forward (elpygen--make-defun-re name) class-end t))))
 
 (defun elpygen--make-defun-re (name &optional toplevel)
-  "Build a regex that matches a function definition NAME.
+  "Build a regex that match a function definition NAME.
 Argument NAME is the name of the function to match.
 Argument TOPLEVEL should be nil when nested definitions are ok, t otherwise."
   (let (def)
@@ -108,14 +108,14 @@ Argument TOPLEVEL should be nil when nested definitions are ok, t otherwise."
     (looking-at elpygen--class-re)))
 
 (defun elpygen--implement-or-find-function (name)
-  "Find top-level function definition or insert a function stub.
+  "Find a top-level function definition or insert a function stub.
 Argument NAME the name of the function to find or insert."
   (if-let (pos (elpygen--find-function-definition name))
       (goto-char pos)
     (elpygen--implement-function name)))
 
 (defun elpygen--implement-function (name)
-  "Find top-level function definition or insert a function stub.
+  "Find a top-level function definition or insert a function stub.
 Argument NAME the name of the function to insert."
   (let ((arglist (elpygen--get-arglist)))
     (elpygen--prepare-function-insert-point)
@@ -124,7 +124,7 @@ Argument NAME the name of the function to insert."
                               arglist)))
 
 (defun elpygen--implement-or-find-method (name)
-  "Find a method in the current class or insert a method stub into the current class.
+  "Find a method in the current class or insert a method stub.
 Argument NAME is the name of method to find or insert."
   (unless (elpygen--within-method-p)
     (user-error "Can only implement a method from within a method of a class"))
