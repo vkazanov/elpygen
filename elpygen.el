@@ -47,8 +47,7 @@
 
 (defvar elpygen--varname-re (python-rx line-start symbol-name line-end))
 
-(defvar elpygen--call-re nil)
-(setq elpygen--call-re (python-rx (optional "self" "\\.") symbol-name (* space) "("))
+(defvar elpygen--call-re (python-rx (optional "self" "\\.") symbol-name (* space) "("))
 
 (defvar elpygen--class-re (python-rx line-start (* space) "class" (+ space) symbol-name))
 
@@ -121,7 +120,9 @@ Argument TOPLEVEL should be nil when nested definitions are ok, t otherwise."
   "Find a top-level function definition or insert a function stub.
 Argument NAME the name of the function to find or insert."
   (if-let (pos (elpygen--find-function-definition name))
-      (goto-char pos)
+      (progn
+        (goto-char pos)
+        (python-nav-backward-sexp))
     (elpygen--implement-function name)))
 
 (defun elpygen--implement-function (name)
@@ -139,7 +140,9 @@ Argument NAME is the name of method to find or insert."
   (unless (elpygen--within-method-p)
     (user-error "Can only implement a method from within a method of a class"))
   (if-let (pos (elpygen--find-method-definition name))
-      (goto-char pos)
+      (progn
+        (goto-char pos)
+        (python-nav-backward-sexp))
     (elpygen--implement-method name)))
 
 (defun elpygen--implement-method (name)
