@@ -61,6 +61,7 @@
     (user-error "This doesn't look like a function/method call"))
   (when (python-info-looking-at-beginning-of-defun)
     (user-error "This is a function/method/class definition, not a call"))
+  (push-mark)
   (if-let (name (elpygen--get-def-name))
       (if (elpygen--symbol-method-p name)
           (elpygen--implement-or-find-method (string-remove-prefix "self." name))
