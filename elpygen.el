@@ -30,6 +30,7 @@
 
 (require 'yasnippet)
 (require 'python)
+(require 'rx)
 (require 'subr-x)
 (require 'thingatpt)
 (require 'cl-lib)
@@ -60,7 +61,7 @@
     (user-error "This is a function/method/class definition, not a call"))
   (if-let (name (elpygen--get-def-name))
       (if (elpygen--symbol-method-p name)
-          (elpygen--implement-method name)
+          (elpygen--implement-or-find-method (string-remove-prefix "self." name))
         (elpygen--implement-or-find-function name))
     (user-error "Failed to find a suitable symbol")))
 
@@ -78,6 +79,28 @@ Argument NAME the name of the symbol to check."
                             (regexp-quote name))))
       (re-search-forward defun-re nil t))))
 
+(defun elpygen--find-method-definition (name)
+  "Find a method definition in the current class or return nil.
+Argument NAME the name of the symbol to check."
+  (save-excursion
+    (let (defun-start defun-end)
+      (while (and
+              (not (elpygen--looking-at-class-definition))
+              (python-nav-backward-block)))
+      (setq defun-start (point))
+      (python-nav-end-of-defun)
+      (setq defun-end (point))
+      (goto-char defun-start)
+      (let ((defun-re (concat (python-rx line-start (* space) defun (+ space))
+                              (regexp-quote name))))
+        (re-search-forward defun-re defun-end t)))))
+
+(defun elpygen--looking-at-class-definition ()
+  (let ((class-re (python-rx line-start (* space) "class" (+ space) symbol-name)))
+    (save-excursion
+      (beginning-of-line 1)
+      (looking-at class-re))))
+
 (defun elpygen--implement-or-find-function (name)
   "Find top-level function definition or insert a function stub.
 Argument NAME the name of the function to find or insert."
@@ -94,15 +117,22 @@ Argument NAME the name of the function to insert."
                               name
                               arglist)))
 
+(defun elpygen--implement-or-find-method (name)
+  "Find a method in the current class or insert a method stub into the current class.
+Argument NAME is the name of method to find or insert."
+  (unless (elpygen--within-method-p)
+    (user-error "Can only implement a method from within a method of a class"))
+  (if-let (pos (elpygen--find-method-definition name))
+      (goto-char pos)
+    (elpygen--implement-method name)))
+
 (defun elpygen--implement-method (name)
   "Insert a method stub into the current class.
 Argument NAME is the name of method to insert."
-  (unless (elpygen--within-method-p)
-    (user-error "Can only implement a method from within a method of a class"))
   (let ((arglist (elpygen--get-arglist)))
     (elpygen--prepare-method-insert-point)
     (elpygen--insert-template elpygen-method-template
-                              (string-remove-prefix "self." name)
+                              name
                               arglist)))
 
 (defun elpygen--within-method-p ()
