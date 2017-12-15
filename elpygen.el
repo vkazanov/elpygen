@@ -49,6 +49,8 @@
 
 (defvar elpygen--funcall-re "[[:alnum:]_.]*[[:space:]]*(")
 
+(defvar elpygen--class-re (python-rx line-start (* space) "class" (+ space) symbol-name))
+
 ;;;###autoload
 (defun elpygen-implement ()
   "Implement a function or a method using the symbol name and call arguments under the point."
@@ -75,31 +77,35 @@ Argument SYMBOL-NAME the name of the symbol to check."
 Argument NAME the name of the symbol to check."
   (save-excursion
     (goto-char (point-min))
-    (let ((defun-re (concat (python-rx line-start defun (+ space))
-                            (regexp-quote name))))
-      (re-search-forward defun-re nil t))))
+    (re-search-forward (elpygen--make-defun-re name t) nil t)))
 
 (defun elpygen--find-method-definition (name)
   "Find a method definition in the current class or return nil.
 Argument NAME the name of the symbol to check."
   (save-excursion
-    (let (defun-start defun-end)
-      (while (and
-              (not (elpygen--looking-at-class-definition))
-              (python-nav-backward-block)))
-      (setq defun-start (point))
+    (let (class-start class-end)
+      (while (and (not (elpygen--looking-at-class-definition))
+                  (python-nav-backward-block)))
+      (setq class-start (point))
       (python-nav-end-of-defun)
-      (setq defun-end (point))
-      (goto-char defun-start)
-      (let ((defun-re (concat (python-rx line-start (* space) defun (+ space))
-                              (regexp-quote name))))
-        (re-search-forward defun-re defun-end t)))))
+      (setq class-end (point))
+      (goto-char class-start)
+      (re-search-forward (elpygen--make-defun-re name) class-end t))))
+
+(defun elpygen--make-defun-re (name &optional toplevel)
+  "Build a regex that matches a function definition NAME.
+Argument NAME is the name of the function to match.
+Argument TOPLEVEL should be nil when nested definitions are ok, t otherwise."
+  (let (def)
+    (if toplevel (setq def (python-rx line-start "def" (+ space)))
+      (setq def (python-rx line-start (* space) "def" (+ space))))
+    (concat def (regexp-quote name))))
 
 (defun elpygen--looking-at-class-definition ()
-  (let ((class-re (python-rx line-start (* space) "class" (+ space) symbol-name)))
-    (save-excursion
-      (beginning-of-line 1)
-      (looking-at class-re))))
+  "Check if looking at a class definition."
+  (save-excursion
+    (beginning-of-line 1)
+    (looking-at elpygen--class-re)))
 
 (defun elpygen--implement-or-find-function (name)
   "Find top-level function definition or insert a function stub.
