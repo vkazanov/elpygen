@@ -1,8 +1,8 @@
 * What?
 
-  ~elpygen.el~ is a little package that implements a single function (~elpygen-implement~). The
-  function retrieves the symbol name under the point, checks that the symbol looks like a call and
-  generates a stub for either a function or a method based on the name of the symbol.
+  ~elpygen.el~ implements a single function only: ~elpygen-implement~. The function retrieves the symbol
+  name under the point, checks that the symbol looks like a call and that it's not defined anywhere
+  in the current file and generates a stub definition based on the name of the symbol.
 
   As the insertion is done using ~yasnippet~ the inserted function/method template will be
   interactive, i.e. it's possible to cycle through the typical template modification points using
@@ -13,10 +13,10 @@
 * How to install?
 
   For manual installation checkout the repository and copy ~elpygen.el~ to your ~load-path~. Make sure
-  ~yasnippet~ is also installed, and your emacs version is above 25.
+  ~yasnippet~ is installed, and your emacs version is at least 25.
 
-  The package should also be available through [[http://melpa.milkbox.net][Melpa]], so just do ~M-x package-install elpygen~, which
-  should ensure all the dependencies are installed.
+  The package is also available through [[http://melpa.milkbox.net][Melpa]]. So if you have that set up - just do ~M-x
+  package-install elpygen~, which should ensure all the dependencies are installed.
 
   Having the package installed add ~(require 'elpygen)~ to your ~.emacs~ and bind ~elpygen-implement~ to a
   key you like:
@@ -98,5 +98,7 @@ class Class():
   - [ ] bugs
 
   - [ ] inserting a Class template based on the symbol name should also be possible.
+
+  - [ ] inserting constants based on the symbol name (if a number or a string - offer to replace?)
 
   - [ ] customisation points (insertion method, insertion point, etc)
