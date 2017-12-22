@@ -86,9 +86,8 @@ Argument SYMBOL-NAME the name of the symbol to check."
 Argument NAME the name of the symbol to check."
   (save-excursion
     (goto-char (point-min))
-    (let ((defre (elpygen--make-defun-re name t)))
-      (when (re-search-forward defre nil t)
-        (match-beginning 0)))))
+    (when (re-search-forward (elpygen--make-defun-re name t) nil t)
+      (match-beginning 1))))
 
 (defun elpygen--find-method-definition (name)
   "Find a method definition in the current class or return nil.
@@ -102,15 +101,19 @@ Argument NAME the name of the symbol to check."
       (setq class-end (point))
       (goto-char class-start)
       (when (re-search-forward (elpygen--make-defun-re name) class-end t)
-        (match-beginning 0)))))
+        (match-beginning 1)))))
 
 (defun elpygen--make-defun-re (name &optional toplevel)
   "Build a regex that match a function definition NAME.
 Argument NAME is the name of the function to match.
-Argument TOPLEVEL should be nil when nested definitions are ok, t otherwise."
+Argument TOPLEVEL should be nil when nested definitions are ok, t
+otherwise."
   (let ((defstart (if toplevel (python-rx line-start "def" (+ space))
                     (python-rx line-start (* space) "def" (+ space)))))
-    (concat defstart (regexp-quote name) (python-rx (* space) "("))))
+    (macroexpand `(python-rx (regexp ,defstart)
+                             (group-n 1 ,name)
+                             (* space)
+                             "("))))
 
 (defun elpygen--looking-at-class-definition ()
   "Check if looking at a class definition."
