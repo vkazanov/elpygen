@@ -86,7 +86,9 @@ Argument SYMBOL-NAME the name of the symbol to check."
 Argument NAME the name of the symbol to check."
   (save-excursion
     (goto-char (point-min))
-    (re-search-forward (elpygen--make-defun-re name t) nil t)))
+    (let ((defre (elpygen--make-defun-re name t)))
+      (when (re-search-forward defre nil t)
+        (match-beginning 0)))))
 
 (defun elpygen--find-method-definition (name)
   "Find a method definition in the current class or return nil.
@@ -99,16 +101,16 @@ Argument NAME the name of the symbol to check."
       (python-nav-end-of-defun)
       (setq class-end (point))
       (goto-char class-start)
-      (re-search-forward (elpygen--make-defun-re name) class-end t))))
+      (when (re-search-forward (elpygen--make-defun-re name) class-end t)
+        (match-beginning 0)))))
 
 (defun elpygen--make-defun-re (name &optional toplevel)
   "Build a regex that match a function definition NAME.
 Argument NAME is the name of the function to match.
 Argument TOPLEVEL should be nil when nested definitions are ok, t otherwise."
-  (let (def)
-    (if toplevel (setq def (python-rx line-start "def" (+ space)))
-      (setq def (python-rx line-start (* space) "def" (+ space))))
-    (concat def (regexp-quote name))))
+  (let ((defstart (if toplevel (python-rx line-start "def" (+ space))
+                    (python-rx line-start (* space) "def" (+ space)))))
+    (concat defstart (regexp-quote name) (python-rx (* space) "("))))
 
 (defun elpygen--looking-at-class-definition ()
   "Check if looking at a class definition."
@@ -120,9 +122,7 @@ Argument TOPLEVEL should be nil when nested definitions are ok, t otherwise."
   "Find a top-level function definition or insert a function stub.
 Argument NAME the name of the function to find or insert."
   (if-let (pos (elpygen--find-function-definition name))
-      (progn
-        (goto-char pos)
-        (python-nav-backward-sexp))
+      (goto-char pos)
     (elpygen--implement-function name)))
 
 (defun elpygen--implement-function (name)
@@ -140,9 +140,7 @@ Argument NAME is the name of method to find or insert."
   (unless (elpygen--within-method-p)
     (user-error "Can only implement a method from within a method of a class"))
   (if-let (pos (elpygen--find-method-definition name))
-      (progn
-        (goto-char pos)
-        (python-nav-backward-sexp))
+      (goto-char pos)
     (elpygen--implement-method name)))
 
 (defun elpygen--implement-method (name)
