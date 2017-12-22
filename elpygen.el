@@ -108,12 +108,11 @@ Argument NAME the name of the symbol to check."
 Argument NAME is the name of the function to match.
 Argument TOPLEVEL should be nil when nested definitions are ok, t
 otherwise."
-  (let ((defstart (if toplevel (python-rx line-start "def" (+ space))
-                    (python-rx line-start (* space) "def" (+ space)))))
-    (macroexpand `(python-rx (regexp ,defstart)
-                             (group-n 1 ,name)
-                             (* space)
-                             "("))))
+  (macroexpand
+   `(python-rx
+     ,@(if toplevel '(line-start "def" (+ space))
+         '(line-start (* space) "def" (+ space)))
+     (group-n 1 ,name) (* space) "(")))
 
 (defun elpygen--looking-at-class-definition ()
   "Check if looking at a class definition."
